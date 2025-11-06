@@ -4,7 +4,11 @@ import { AppDataSource } from "../config/db";
 
 const todoRepository = AppDataSource.getRepository(Todo);
 
-export async function getTodos(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getTodos(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const todos = await todoRepository.find();
     res.json({ status: "success", data: todos });
@@ -13,7 +17,11 @@ export async function getTodos(req: Request, res: Response, next: NextFunction):
   }
 }
 
-export async function createTodo(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function createTodo(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { title } = req.body;
     if (!title) {
@@ -28,7 +36,11 @@ export async function createTodo(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function updateTodo(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function updateTodo(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { id } = req.params;
     const { title, completed } = req.body;
@@ -46,7 +58,11 @@ export async function updateTodo(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function deleteTodo(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function deleteTodo(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { id } = req.params;
     const result = await todoRepository.delete({ id });

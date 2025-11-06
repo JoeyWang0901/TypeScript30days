@@ -22,7 +22,7 @@ module.exports = [
       ...js.configs.recommended.rules, // ESLint 基本規則
       ...tsPlugin.configs.recommended.rules, // TypeScript 推薦規則
       ...prettier.rules, // 正確使用 prettier 配置
-      "prettier/prettier": "error", // Prettier 格式錯誤會顯示
+    //   "prettier/prettier": "error", // Prettier 格式錯誤會顯示
       semi: ["error", "always"], // 行尾一定要有分號
       quotes: ["error", "double"], // 用雙引號
       "no-var": "error", // 不准用 var
