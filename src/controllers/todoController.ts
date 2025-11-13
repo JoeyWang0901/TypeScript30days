@@ -1,78 +1,107 @@
-import { Request, Response, NextFunction } from 'express';
-import { Todo } from '../entities/Todo';
-import { AppDataSource } from '../config/db';
+import { Response, NextFunction } from "express";
+import { Todo } from "../entities/Todo";
+import { AppDataSource } from "../config/db";
+import {
+  createTodoSchema,
+  updateTodoSchema,
+} from "../validator/todoValidation";
+import { AuthRequest } from "../middleware/isAuth";
 
 const todoRepository = AppDataSource.getRepository(Todo);
 
 export async function getTodos(
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> {
-    try {
-        const todos = await todoRepository.find();
-        res.json({ status: 'success', data: todos });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const todos = await todoRepository.find({
+      where: { userId: req.user!.id },
+      order: { createdAt: "DESC" },
+    });
+    res.json({ status: "success", data: todos });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function createTodo(
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> {
-    try {
-        const { title } = req.body;
-        if (!title) {
-            res.status(400).json({ status: 'error', message: 'Title is required' });
-            return;
-        }
-        const newTodo = todoRepository.create({ title });
-        const savedTodo = await todoRepository.save(newTodo);
-        res.status(201).json({ status: 'success', data: savedTodo });
+  try {
+    const parsed = createTodoSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      res.status(400).json({ status: "failed", message: "資料格式錯誤" });
+      return;
     }
-    catch (error) {
-        next(error);
-    }
-}   
+    const todo = todoRepository.create({
+      title: parsed.data.title,
+      userId: req.user!.id,
+    });
+    const saved = await todoRepository.save(todo);
+    res.status(201).json({ status: "success", data: saved });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export async function updateTodo(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-        const { id } = req.params;
-        const { title, completed } = req.body;
-        const todo = await todoRepository.findOne({ where: { id } });
-        if (!todo) {
-            res.status(404).json({ status: 'error', message: 'Todo not found' });
-            return;
-        }
-        todo.title = title !== undefined ? title : todo.title;
-        todo.completed = completed !== undefined ? completed : todo.completed;
-        const updatedTodo = await todoRepository.save(todo);
-        res.json({ status: 'success', data: updatedTodo });
-    } catch (error) {
-        next(error);
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { id } = req.params;
+    const parsed = updateTodoSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ status: "failed", message: "更新資料格式錯誤" });
+      return;
     }
+
+    const todo = await todoRepository.findOne({
+      where: { id, userId: req.user!.id },
+    });
+    if (!todo) {
+      res.status(404).json({ status: "error", message: "不存在或無權限操作" });
+      return;
+    }
+
+    todo.title = parsed.data.title ?? todo.title;
+    todo.completed = parsed.data.completed ?? todo.completed;
+
+    const updatedTodo = await todoRepository.save(todo);
+    res.json({ status: "success", data: updatedTodo });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function deleteTodo(
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> {
-    try {
-        const { id } = req.params;
-        const result = await todoRepository.delete({ id });
-        if (result.affected === 0) {
-            res.status(404).json({ status: 'error', message: 'Todo not found' });
-            return;
-        }
-        res.json({ status: 'success', data: result });
-    } catch (error) {
-        next(error);
+  try {
+    const { id } = req.params;
+
+    const todo = await todoRepository.findOne({
+      where: { id, userId: req.user!.id },
+    });
+
+    if (!todo) {
+      res
+        .status(404)
+        .json({ status: "error", message: "Todo 不存在或無權限操作" });
+      return;
     }
+
+    await todoRepository.remove(todo);
+
+    res.json({ status: "success", message: "Todo 已刪除" });
+  } catch (error) {
+    next(error);
+  }
 }
