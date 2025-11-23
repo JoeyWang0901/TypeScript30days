@@ -3,6 +3,7 @@ import express from "express";
 import { AppDataSource } from "./config/db";
 import todoRoutes from "./routes/todoRoutes";
 import authRoutes from "./routes/authRoutes";
+import uploadRoutes from "./routes/uploadRoutes";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use("/api/todos", todoRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, iThome 2025!");

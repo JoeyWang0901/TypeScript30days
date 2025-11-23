@@ -31,4 +31,7 @@ export class User {
   // 與 Todo 的一對多關係
   @OneToMany(() => Todo, (todo) => todo.user)
   todos?: Todo[];
+
+  @Column({ name: "profile_url", length: 2048, nullable: true })
+  profileUrl?: string;
 }
