@@ -6,7 +6,15 @@ const tsPlugin = require("@typescript-eslint/eslint-plugin");
 
 module.exports = [
   {
+    ignores: [
+      "src/migrations/*.ts",
+      "dist/migrations/*.js", // 如果您對編譯後的檔案執行 lint 檢查
+      "node_modules", // 標準的忽略項目 bvcff
+    ],
+  },
+  {
     files: ["**/*.ts"], // 檢查 .ts 檔案
+    
     languageOptions: {
       parser: tsParser, // 用 TypeScript 的解析器
       sourceType: "module", // 支援 ES 模組

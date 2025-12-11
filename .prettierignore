@@ -44,3 +44,6 @@ uploads/
 *.sqlite
 *.sql
 *.dump
+
+# 忽略 TypeORM Migration 檔案
+src/migration/*.ts
