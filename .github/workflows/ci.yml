@@ -21,7 +21,7 @@ jobs:
       - name: 📦 設置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.12.0'
+          node-version: '20.17.0'
           cache: 'npm'
 
       # 步驟 3: 安裝依賴
