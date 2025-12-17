@@ -17,6 +17,8 @@ export const AppDataSource = new DataSource({
   synchronize: false, // 開發階段建議 true，正式環境請改成 false
   logging: true,
   ssl: { rejectUnauthorized: false },
-  migrations: ["src/migrations/**/*.ts"], // 📁 migration 檔案路徑
+  migrations: process.env.NODE_ENV === "production"
+  ? [__dirname + "/../migrations/*.js"]
+  : ["src/migrations/**/*.ts"], // 📁 migration 檔案路徑
   migrationsTableName: "migrations_history", // 📊 migration 歷史記錄表名稱
 });
